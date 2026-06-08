@@ -6,16 +6,23 @@
 
 系统下辖6个线下校区，开设器乐、舞蹈、美术、艺考集训四大类课程，业务涵盖常规班课、一对一私教、短期集训营、外出考级、外出赛事带队五大场景。
 
+> **广告制作业务模块**：本次迭代新增广告制作业务管理模块，支持客户管理、订单流程、合同档案、报表统计等功能。
+
 ## 系统架构
 
 ### 微服务模块
 
 - **用户中心** (`art-training-user`)：用户管理、校区管理、多角色用户体系
 - **权限中心** (`art-training-auth`)：角色权限管理、JWT认证、接口鉴权
+- **业务中心** (`art-training-business`)：广告制作业务管理（客户、订单、合同、报表）
 - 教务排课（规划中）
 - 课时账户（规划中）
 - 薪酬核算（规划中）
 - 财务对账（规划中）
+
+### 前端项目
+
+- **管理前端** (`art-training-web`)：Vue 3 + Element Plus 管理后台
 
 ### 公共模块
 
@@ -62,6 +69,14 @@
 - 内部往来账目、跨校区内部结算单
 - 财务单据多级审批，不可随意删除
 
+### 5. 广告制作业务（新增）
+- **客户档案管理**：客户基础信息、历史消费记录、制作偏好、客户等级
+- **订单流程管理**：待确认→已确认→制作中→待复核→已完成→已取件
+- **合同档案管理**：企业客户合同、到期提醒、附件上传
+- **加急订单**：加急标识、车间高亮、优先制作
+- **操作记录追溯**：关键节点操作留痕、操作人/时间记录
+- **数据报表**：按客户/类型/时间段筛选、业绩报表导出
+
 ## 快速开始
 
 ### 环境要求
@@ -69,20 +84,26 @@
 - JDK 17+
 - Maven 3.8+
 - MySQL 8.0+
+- Node.js 18+
+- npm 9+
 
 ### 数据库初始化
 
 ```bash
-# 执行初始化脚本
+# 执行初始化脚本（用户、权限、校区）
 mysql -u root -p < sql/init.sql
+
+# 执行业务脚本（客户、订单、合同等）
+mysql -u root -p < sql/business.sql
 ```
 
 默认初始化数据：
 - 6个校区：北京朝阳、上海浦东、广州天河、深圳南山、杭州西湖、成都高新
 - 超级管理员：admin / 123456
 - 7个默认角色：超级管理员、集团管理员、校区校长、授课教师、课程顾问、财务人员、学员
+- 业务权限：客户管理、订单管理、合同管理、报表管理
 
-### 启动服务
+### 启动后端服务
 
 ```bash
 # 编译项目
@@ -95,12 +116,33 @@ mvn spring-boot:run
 # 启动权限中心 (端口: 8082)
 cd art-training-auth
 mvn spring-boot:run
+
+# 启动业务中心 (端口: 8523，仅监听127.0.0.1)
+cd art-training-business
+mvn spring-boot:run
+```
+
+### 启动前端项目
+
+```bash
+# 安装依赖
+cd art-training-web
+npm install
+
+# 启动开发服务 (端口: 3523，仅监听127.0.0.1)
+npm run dev
 ```
 
 ### 接口文档
 
 - 用户中心：http://localhost:8081/user-center/doc.html
 - 权限中心：http://localhost:8082/auth-center/doc.html
+- 业务中心：http://localhost:8523/business-center/doc.html
+
+### 访问地址
+
+- 前端管理台：http://127.0.0.1:3523
+- 默认账号：admin / 123456
 
 ## 项目结构
 
@@ -134,8 +176,26 @@ art-training-parent/
 │   ├── annotation/             # 权限注解
 │   ├── aspect/                 # AOP切面
 │   └── interceptor/            # 拦截器
+├── art-training-business/      # 业务中心模块（广告制作）
+│   ├── controller/             # 控制层
+│   ├── service/                # 服务层
+│   ├── mapper/                 # 数据访问层
+│   ├── entity/                 # 实体类
+│   ├── constant/               # 业务常量
+│   ├── interceptor/            # 拦截器
+│   └── config/                 # 配置类
+├── art-training-web/           # 前端管理台
+│   ├── src/
+│   │   ├── api/                # API接口
+│   │   ├── views/              # 页面视图
+│   │   ├── components/         # 公共组件
+│   │   ├── router/             # 路由配置
+│   │   ├── stores/             # Pinia状态
+│   │   └── utils/              # 工具函数
+│   └── package.json
 └── sql/                        # 数据库脚本
-    └── init.sql
+    ├── init.sql                # 初始化脚本
+    └── business.sql            # 业务模块脚本
 ```
 
 ## 用户类型说明

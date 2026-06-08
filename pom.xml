@@ -15,6 +15,7 @@
         <module>art-training-common</module>
         <module>art-training-user</module>
         <module>art-training-auth</module>
+        <module>art-training-business</module>
     </modules>
 
     <properties>
